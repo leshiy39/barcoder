@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запрос данных</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #dataForm {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px dashed #000;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Запрос данных по инвентарному номеру</h1>
+
+    {% if error_message %}
+    <p style="color: red; text-align: center;">{{ error_message }}</p>
+    {% endif %}
+
+    <form method="post" id="dataForm" onsubmit="submitForm(event)">
+        <label for="inventory_number">Инвентарный номер:</label>
+        <input type="text" id="inventory_number" name="inventory_number" required>
+        <button type="button" onclick="submitForm(event)">Запросить</button>
+    </form>
+
+    {% if status_label %}
+    <div id="resultContainer">
+        {% if asset_number %}
+        <h2>Результаты запроса для {{ asset_number }}:</h2>
+        {% else %}
+        <h2>Результаты запроса:</h2>
+        {% endif %}
+        <p>Статус: {{ status_label }}</p>
+        <p>Назначено пользователю с именем пользователя: {{ assigned_to_username }}</p>
+        <p>Заметки: {{ notes }}</p>
+        <p>Модель: {{ model }}</p>
+        <p>Серийный номер: {{ serial }}</p>
+        <p>Местоположение: {{ rtd_location }}</p>
+
+        <!-- Добавим блок для изображения -->
+        {% if image %}
+        <img src="{{ image }}" alt="Изображение отсутствует">
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById('inventory_number').focus();
+        });
+
+        function submitForm(event) {
+            event.preventDefault();
+            document.forms["dataForm"].submit();
+        }
+    </script>
+</body>
+
+</html>
