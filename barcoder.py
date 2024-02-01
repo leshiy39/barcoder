@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import requests
 import json
 # pip install python-telegram-bot
-from telegram import Bot
+# from telegram import Bot
 
 app = Flask(__name__)
 
@@ -68,9 +68,12 @@ def extract_values(data):
     else:
         return None, None
 
-def send_telegram_message(token, chat_id, message):
+def send_telegram_message(token, chat_id, thread_id, message):
     url = f'https://api.telegram.org/bot{token}/sendMessage'
-    params = {'message_thread_id': "34", 'chat_id': f"{chat_id}_34", 'text': message}
+    if thread_id:
+        params = {'message_thread_id': "f{thread_id}", 'chat_id': f"{chat_id}_{thread_id}", 'text': message}
+    else:
+        params = {'chat_id': f"{chat_id}", 'text': message}
     response = requests.get(url, params=params)
 
     if response.status_code != 200:
@@ -98,6 +101,7 @@ def index():
             api_key = config.get('api_key', '')
             telegram_token = config.get('TELEGRAM_BOT_TOKEN', '')
             telegram_chat_id = config.get('TELEGRAM_CHAT_ID', '')
+            thread_id = config.get('thread_id', '')
 
             inventory_number = request.form.get('inventory_number', '')
             data = get_inventory_data(api_url, api_key, inventory_number)
@@ -114,10 +118,11 @@ def index():
                 serial = values['serial']
                 rtd_location = values['rtd_location']
                 image = values['image']
-                send_telegram_message(telegram_token, telegram_chat_id, f"Поиск {inventory_number} прошел успешно: {assigned_to_username}")
+                print(f"Поиск {inventory_number} прошел успешно: {assigned_to_username}")
+                send_telegram_message(telegram_token, telegram_chat_id, thread_id, f"Поиск {inventory_number} прошел успешно: {values}")
             elif error:
                 error_message = error.get('messages', 'Неизвестная ошибка.')
-                send_telegram_message(telegram_token, telegram_chat_id, f"Ошибка при поиске {inventory_number}: {error_message}")
+                send_telegram_message(telegram_token, telegram_chat_id, thread_id, f"Ошибка при поиске {inventory_number}: {error_message}")
 
     return render_template('index.html', status_label=status_label, assigned_to_username=assigned_to_username, 
                            notes=notes, model=model, serial=serial, rtd_location=rtd_location, error_message=error_message, image=image, asset_number=asset_number)

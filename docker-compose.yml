@@ -8,6 +8,9 @@ services:
       - "8885:8885"
     volumes:
       - .:/app
+      # - ./config.json:/app/config.json
     environment:
       - FLASK_APP=barcoder.py
       - FLASK_RUN_HOST=0.0.0.0
+    network_mode: host
+    tty: true
